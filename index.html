@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>VULPS+ · Flashcards com Repetição Espaçada</title>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/fontawesome.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/solid.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --accent-primary: #00D9E8;
+      --accent-secondary: #00C2D1;
+      --accent-strong: #007F8C;
+      --accent-soft: rgba(0, 217, 232, 0.12);
+      --accent-glow: rgba(0, 217, 232, 0.25);
+      --bg-primary: #0D141C;
+      --bg-secondary: #0F1720;
+      --bg-card: #121C26;
+      --text-primary: #F0F8FF;
+      --text-secondary: #B0E5EB;
+      --text-muted: #7FB8C0;
+      --border-light: #1F2E3A;
+      --border-hover: #00D9E8;
+      --success: #22C55E;
+      --danger: #EF4444;
+      --warning: #F59E0B;
+      --radius-sm: 12px;
+      --radius-lg: 24px;
+      --card-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    html[data-theme="light"] {
+      --bg-primary: #F0F7F9;
+      --bg-secondary: #E1F0F3;
+      --bg-card: #FFFFFF;
+      --border-light: #C5E0E5;
+      --border-hover: #00C2D1;
+      --text-primary: #0A1A1F;
+      --text-secondary: #1A3D47;
+      --text-muted: #4A7B85;
+      --accent-primary: #007F8C;
+      --accent-secondary: #006B75;
+      --accent-strong: #005A63;
+      --accent-soft: rgba(0, 127, 140, 0.1);
+      --accent-glow: rgba(0, 127, 140, 0.2);
+      --card-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Roboto', system-ui, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      padding: 24px 16px;
+      line-height: 1.5;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    .app-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+      border-bottom: 2px solid var(--accent-primary);
+      padding-bottom: 16px;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-strong));
+      border-radius: 14px;
+      box-shadow: 0 4px 12px var(--accent-glow);
+    }
+
+    .brand-logo svg { width: 32px; height: 32px; }
+
+    .brand-text h1 {
+      font-weight: 650;
+      font-size: 1.8rem;
+      background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-primary) 80%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+    }
+
+    .brand-text p { color: var(--text-secondary); font-size: 0.9rem; }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 24px 22px;
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--border-light);
+    }
+
+    h2 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 18px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 12px;
+    }
+
+    h2 i { color: var(--accent-primary); }
+
+    h3 { font-weight: 600; font-size: 1.1rem; margin-bottom: 12px; color: var(--text-primary); }
+
+    .btn {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-light);
+      border-radius: 40px;
+      padding: 10px 22px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      cursor: pointer;
+      box-shadow: var(--card-shadow);
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:disabled { opacity: 0.6; pointer-events: none; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-strong));
+      border: none;
+      color: #0A1418;
+      font-weight: 700;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: linear-gradient(135deg, #00F0FF, var(--accent-primary));
+      transform: translateY(-2px);
+    }
+
+    .btn-outline:hover:not(:disabled) {
+      background: var(--accent-soft);
+      border-color: var(--accent-primary);
+    }
+
+    .btn-danger { background: rgba(239, 68, 68, 0.15); border-color: var(--danger); color: var(--danger); }
+    .btn-success { background: rgba(34, 197, 94, 0.15); border-color: var(--success); color: var(--success); }
+    .btn-warning { background: rgba(245, 158, 11, 0.15); border-color: var(--warning); color: var(--warning); }
+
+    .badge {
+      background: var(--accent-soft);
+      padding: 4px 10px;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent-primary);
+      border: 1px solid var(--accent-primary);
+    }
+
+    .flex-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    #theme-toggle {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 40px;
+      padding: 8px 16px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .theme-text { display: none; }
+    @media (min-width: 600px) { .theme-text { display: inline; } }
+
+    @media (max-width: 480px) {
+      body { padding: 16px 10px; }
+      .card { padding: 18px 14px; }
+      .btn { padding: 12px 16px; }
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .metric-card {
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid var(--border-light);
+      text-align: center;
+    }
+
+    .metric-value { font-size: 2rem; font-weight: 700; color: var(--accent-primary); }
+    .metric-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; }
+
+    .decks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .deck-item {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      border: 1px solid var(--border-light);
+      transition: all 0.2s;
+    }
+
+    .deck-item:hover { background: var(--accent-soft); border-color: var(--accent-primary); }
+
+    .deck-name { font-weight: 600; font-size: 1.1rem; margin-bottom: 8px; }
+    .deck-stats { font-size: 0.8rem; color: var(--text-muted); }
+
+    .cards-list {
+      margin-top: 16px;
+      border-top: 1px solid var(--border-light);
+      padding-top: 12px;
+    }
+
+    .card-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px;
+      background: var(--bg-card);
+      border-radius: var(--radius-sm);
+      margin-bottom: 8px;
+      border: 1px solid var(--border-light);
+    }
+
+    .card-item-front {
+      font-weight: 500;
+      flex: 1;
+      margin-right: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .flashcard-container {
+      perspective: 1000px;
+      min-height: 300px;
+      margin: 20px 0;
+    }
+
+    .flashcard {
+      position: relative;
+      width: 100%;
+      min-height: 250px;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+      cursor: pointer;
+    }
+
+    .flashcard.flipped { transform: rotateY(180deg); }
+
+    .flashcard-front, .flashcard-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: var(--radius-lg);
+      padding: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: var(--bg-secondary);
+      border: 2px solid var(--border-light);
+      box-shadow: var(--card-shadow);
+    }
+
+    .flashcard-back {
+      transform: rotateY(180deg);
+      background: var(--accent-soft);
+      border-color: var(--accent-primary);
+    }
+
+    .card-content { font-size: 1.2rem; line-height: 1.6; }
+
+    .review-actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    @media (max-width: 480px) {
+      .review-actions { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-card {
+      background: var(--bg-card);
+      max-width: 500px;
+      width: 90%;
+      border-radius: 28px;
+      padding: 24px;
+      border: 2px solid var(--accent-primary);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      font-family: inherit;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    textarea { min-height: 100px; resize: vertical; }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      padding: 12px 24px;
+      border-radius: 40px;
+      border-left: 4px solid var(--accent-primary);
+      box-shadow: var(--card-shadow);
+      z-index: 9999;
+      animation: slideUp 0.3s;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+    }
+
+    .empty-state i { font-size: 3rem; margin-bottom: 16px; opacity: 0.5; }
+
+    input[type="file"] { display: none; }
+
+    .keyboard-hint {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .keyboard-hint kbd {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  
+  <div class="app-header">
+    <div class="header-brand">
+      <div class="brand-logo">
+        <svg viewBox="0 0 40 40" fill="none">
+          <path d="M8 12L20 6L32 12V28L20 34L8 28V12Z" fill="#0D141C" stroke="white" stroke-width="2"/>
+          <text x="20" y="26" font-size="20" font-weight="700" text-anchor="middle" fill="white" font-family="Segoe UI">V+</text>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>VULPS+ Cards</h1>
+        <p>Repetição espaçada para concursos</p>
+      </div>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <button id="theme-toggle">
+        <i class="fas" id="theme-icon">🌙</i>
+        <span class="theme-text">Escuro</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="card" id="dashboardCard">
+    <h2><i class="fas fa-chart-line"></i> Seu Progresso</h2>
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-value" id="dueToday">0</div>
+        <div class="metric-label">Para revisar hoje</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="totalCards">0</div>
+        <div class="metric-label">Total de cartas</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="matureCards">0</div>
+        <div class="metric-label">Maduras</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="studyStreak">0🔥</div>
+        <div class="metric-label">Streak</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ações principais -->
+  <div class="card">
+    <div class="flex-row">
+      <h2 style="border-bottom: none; padding-bottom: 0; margin-bottom: 0;"><i class="fas fa-layer-group"></i> Seus Decks</h2>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn btn-outline" id="exportDataBtn"><i class="fas fa-download"></i> Exportar</button>
+        <label class="btn btn-outline"><i class="fas fa-upload"></i> Importar<input type="file" id="importFileInput" accept=".json"></label>
+        <button class="btn btn-primary" id="createDeckBtn"><i class="fas fa-plus"></i> Novo Deck</button>
+      </div>
+    </div>
+    <div id="decksContainer" class="decks-grid">
+      <div class="empty-state"><i class="fas fa-folder-open"></i><p>Crie seu primeiro deck</p></div>
+    </div>
+  </div>
+
+  <!-- Área de revisão -->
+  <div class="card" id="reviewCard" style="display: none;">
+    <div class="flex-row">
+      <h2 style="border-bottom: none; padding-bottom: 0;"><i class="fas fa-play-circle"></i> <span id="reviewDeckName">Revisão</span></h2>
+      <div style="display: flex; gap: 8px;">
+        <span class="badge" id="reviewProgress">0/0</span>
+        <span class="badge" id="reviewTimer">00:00</span>
+        <button class="btn btn-outline" id="exitReviewBtn"><i class="fas fa-times"></i></button>
+      </div>
+    </div>
+    
+    <div class="flashcard-container">
+      <div class="flashcard" id="flashcard">
+        <div class="flashcard-front">
+          <div class="card-content" id="cardFront">Clique para revelar</div>
+        </div>
+        <div class="flashcard-back">
+          <div class="card-content" id="cardBack">Resposta</div>
+        </div>
+      </div>
+    </div>
+    
+    <p style="text-align: center; color: var(--text-muted); margin-bottom: 16px;">
+      <i class="fas fa-lightbulb"></i> Clique na carta ou pressione <kbd>Espaço</kbd>
+    </p>
+    
+    <div class="review-actions" id="reviewActions" style="display: none;">
+      <button class="btn btn-danger" data-grade="again"><i class="fas fa-times"></i> Errei (1)</button>
+      <button class="btn btn-warning" data-grade="hard"><i class="fas fa-tint"></i> Difícil (2)</button>
+      <button class="btn btn-success" data-grade="good"><i class="fas fa-check"></i> Bom (3)</button>
+      <button class="btn btn-primary" data-grade="easy"><i class="fas fa-star"></i> Fácil (4)</button>
+    </div>
+    
+    <div class="keyboard-hint">
+      <span><kbd>1</kbd> Errei</span>
+      <span><kbd>2</kbd> Difícil</span>
+      <span><kbd>3</kbd> Bom</span>
+      <span><kbd>4</kbd> Fácil</span>
+    </div>
+  </div>
+
+  <!-- Modal Deck -->
+  <div class="modal-overlay" id="deckModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="deckModalTitle">Novo Deck</h3>
+        <button class="btn btn-outline" onclick="window.closeDeckModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <input type="text" id="deckNameInput" placeholder="Nome do deck (ex: Direito Constitucional)">
+      <div class="flex-row">
+        <button class="btn btn-primary" id="saveDeckBtn">Salvar</button>
+        <button class="btn btn-outline" onclick="window.closeDeckModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Card -->
+  <div class="modal-overlay" id="cardModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="cardModalTitle">Nova Carta</h3>
+        <button class="btn btn-outline" onclick="window.closeCardModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <textarea id="cardFrontInput" placeholder="Frente (pergunta)"></textarea>
+      <textarea id="cardBackInput" placeholder="Verso (resposta)"></textarea>
+      <div class="flex-row">
+        <button class="btn btn-primary" id="saveCardBtn">Salvar</button>
+        <button class="btn btn-outline" onclick="window.closeCardModal()">Cancelar</button>
+        <button class="btn btn-danger" id="deleteCardBtn" style="display: none;"><i class="fas fa-trash"></i> Excluir</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function(){
+    "use strict";
+
+    // IndexedDB
+    const DB_NAME = 'flashcards-db-v2';
+    let db = null;
+    
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        if (db) return resolve(db);
+        const request = indexedDB.open(DB_NAME, 1);
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => { db = request.result; resolve(db); };
+        request.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('decks')) db.createObjectStore('decks', { keyPath: 'id' });
+          if (!db.objectStoreNames.contains('cards')) db.createObjectStore('cards', { keyPath: 'id' });
+          if (!db.objectStoreNames.contains('progress')) db.createObjectStore('progress', { keyPath: 'cardId' });
+          if (!db.objectStoreNames.contains('sessions')) db.createObjectStore('sessions', { keyPath: 'date' });
+        };
+      });
+    }
+
+    async function getAllData() {
+      const db = await openDB();
+      const tx = db.transaction(['decks', 'cards', 'progress', 'sessions'], 'readonly');
+      const [decks, cards, progress, sessions] = await Promise.all([
+        tx.objectStore('decks').getAll(),
+        tx.objectStore('cards').getAll(),
+        tx.objectStore('progress').getAll(),
+        tx.objectStore('sessions').getAll()
+      ]);
+      return { decks, cards, progress, sessions };
+    }
+
+    async function put(storeName, item) {
+      const db = await openDB();
+      return new Promise((resolve) => {
+        const tx = db.transaction(storeName, 'readwrite');
+        tx.objectStore(storeName).put(item);
+        tx.oncomplete = () => resolve();
+      });
+    }
+
+    async function remove(storeName, id) {
+      const db = await openDB();
+      return new Promise((resolve) => {
+        const tx = db.transaction(storeName, 'readwrite');
+        tx.objectStore(storeName).delete(id);
+        tx.oncomplete = () => resolve();
+      });
+    }
+
+    function generateId() { return Date.now() + '-' + Math.random().toString(36).substr(2, 9); }
+
+    // Toast
+    function showToast(msg, type = 'info') {
+      const toast = document.createElement('div'); 
+      toast.className = 'toast'; 
+      toast.textContent = msg;
+      if (type === 'success') toast.style.borderLeftColor = '#22C55E';
+      document.body.appendChild(toast); 
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // Estado
+    let currentDeckId = null;
+    let editingCardId = null;
+    let reviewCards = [];
+    let reviewIndex = 0;
+    let sessionStart = null;
+    let sessionTimer = null;
+    let sessionSeconds = 0;
+    let sessionReviewed = 0;
+    let isReviewActive = false;
+    let isProcessing = false;
+    let flipDebounce = false;
+
+    // Elementos DOM cacheados
+    const DOM = {
+      flashcard: document.getElementById('flashcard'),
+      cardFront: document.getElementById('cardFront'),
+      cardBack: document.getElementById('cardBack'),
+      reviewActions: document.getElementById('reviewActions'),
+      reviewProgress: document.getElementById('reviewProgress'),
+      reviewTimer: document.getElementById('reviewTimer'),
+      reviewDeckName: document.getElementById('reviewDeckName'),
+      reviewCard: document.getElementById('reviewCard'),
+      dashboardCard: document.getElementById('dashboardCard'),
+      decksCard: document.querySelector('#decksContainer').closest('.card'),
+      decksContainer: document.getElementById('decksContainer'),
+      dueToday: document.getElementById('dueToday'),
+      totalCards: document.getElementById('totalCards'),
+      matureCards: document.getElementById('matureCards'),
+      studyStreak: document.getElementById('studyStreak'),
+      cardModal: document.getElementById('cardModal'),
+      cardFrontInput: document.getElementById('cardFrontInput'),
+      cardBackInput: document.getElementById('cardBackInput'),
+      cardModalTitle: document.getElementById('cardModalTitle'),
+      deleteCardBtn: document.getElementById('deleteCardBtn')
+    };
+
+    // Tema
+    const htmlEl = document.documentElement;
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    const themeText = themeToggle.querySelector('.theme-text');
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    function updateThemeUI(t) {
+      htmlEl.setAttribute('data-theme', t);
+      themeIcon.className = t === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+      themeText.textContent = t === 'dark' ? 'Escuro' : 'Claro';
+    }
+    updateThemeUI(savedTheme);
+    themeToggle.onclick = () => {
+      const n = htmlEl.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      updateThemeUI(n); localStorage.setItem('theme', n);
+    };
+
+    // Algoritmo SM-2 corrigido
+    function calculateNextReview(progress, grade) {
+      let { interval, easeFactor, repetitions } = { ...progress };
+      
+      if (grade === 'again') {
+        interval = 1;
+        repetitions = 0;
+        easeFactor = Math.max(1.3, easeFactor - 0.2);
+      } else {
+        if (repetitions === 0) interval = 1;
+        else if (repetitions === 1) interval = 6;
+        else interval = Math.round(interval * easeFactor);
+        
+        interval = Math.max(1, Math.round(interval * easeFactor));
+        
+        if (grade === 'hard') easeFactor = Math.max(1.3, easeFactor - 0.15);
+        else if (grade === 'good') easeFactor = easeFactor;
+        else if (grade === 'easy') easeFactor = Math.min(2.5, easeFactor + 0.15);
+        
+        repetitions++;
+      }
+      
+      const dueDate = new Date();
+      dueDate.setDate(dueDate.getDate() + interval);
+      
+      return { 
+        interval, 
+        easeFactor: Math.round(easeFactor * 100) / 100, 
+        repetitions, 
+        dueDate: dueDate.toISOString(), 
+        lastReviewed: new Date().toISOString() 
+      };
+    }
+
+    // Renderização
+    async function loadDashboard() {
+      const { decks, cards, progress, sessions } = await getAllData();
+      
+      const today = new Date().toISOString().split('T')[0];
+      const dueToday = progress.filter(p => p.dueDate.split('T')[0] <= today).length;
+      const mature = progress.filter(p => p.interval >= 21).length;
+      
+      let streak = 0;
+      const dates = sessions.map(s => s.date).sort().reverse();
+      if (dates.length) {
+        let check = new Date();
+        for (let d of dates) {
+          if (d === check.toISOString().split('T')[0]) { streak++; check.setDate(check.getDate() - 1); }
+          else break;
+        }
+      }
+      
+      DOM.dueToday.textContent = dueToday;
+      DOM.totalCards.textContent = cards.length;
+      DOM.matureCards.textContent = mature;
+      DOM.studyStreak.textContent = streak + '🔥';
+      
+      if (decks.length === 0) {
+        DOM.decksContainer.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><p>Crie seu primeiro deck</p></div>';
+        return;
+      }
+      
+      DOM.decksContainer.innerHTML = decks.map(d => {
+        const deckCards = cards.filter(c => c.deckId === d.id);
+        const deckProgress = deckCards.map(c => progress.find(p => p.cardId === c.id)).filter(p => p);
+        const due = deckProgress.filter(p => p.dueDate.split('T')[0] <= today).length;
+        return `
+          <div class="deck-item" data-deck-id="${d.id}">
+            <div class="deck-name">${d.name}</div>
+            <div class="deck-stats">${deckCards.length} cartas · ${due} para revisar</div>
+            <div style="display: flex; gap: 8px; margin: 16px 0 8px;">
+              <button class="btn btn-outline review-deck-btn" data-deck-id="${d.id}" style="flex:1; padding:8px;"><i class="fas fa-play"></i> Revisar</button>
+              <button class="btn btn-outline add-card-btn" data-deck-id="${d.id}" style="padding:8px;"><i class="fas fa-plus"></i></button>
+              <button class="btn btn-outline toggle-cards-btn" data-deck-id="${d.id}" style="padding:8px;"><i class="fas fa-list"></i></button>
+            </div>
+            <div class="cards-list" id="cards-${d.id}" style="display: none;"></div>
+          </div>
+        `;
+      }).join('');
+      
+      document.querySelectorAll('.review-deck-btn').forEach(b => b.addEventListener('click', (e) => startReview(e.target.dataset.deckId)));
+      document.querySelectorAll('.add-card-btn').forEach(b => b.addEventListener('click', (e) => openCardModal(e.target.dataset.deckId)));
+      document.querySelectorAll('.toggle-cards-btn').forEach(b => b.addEventListener('click', async (e) => {
+        const deckId = e.target.dataset.deckId;
+        const container = document.getElementById(`cards-${deckId}`);
+        if (container.style.display === 'none') {
+          const { cards, progress } = await getAllData();
+          const deckCards = cards.filter(c => c.deckId === deckId);
+          container.innerHTML = deckCards.map(c => {
+            const p = progress.find(pr => pr.cardId === c.id);
+            return `
+              <div class="card-item">
+                <span class="card-item-front">${c.front.substring(0, 30)}...</span>
+                <div style="display: flex; gap: 4px;">
+                  <span class="badge" style="font-size:0.7rem;">⏱️ ${p?.interval || 0}d</span>
+                  <button class="btn btn-outline edit-card-btn" data-card-id="${c.id}" style="padding:4px 8px;"><i class="fas fa-edit"></i></button>
+                </div>
+              </div>
+            `;
+          }).join('');
+          container.style.display = 'block';
+          container.querySelectorAll('.edit-card-btn').forEach(btn => btn.addEventListener('click', (e) => {
+            const cardId = e.target.closest('button').dataset.cardId;
+            const card = cards.find(c => c.id === cardId);
+            if (card) openCardModal(card.deckId, card);
+          }));
+        } else {
+          container.style.display = 'none';
+        }
+      }));
+    }
+
+    async function startReview(deckId) {
+      const { decks, cards, progress } = await getAllData();
+      const deck = decks.find(d => d.id === deckId);
+      if (!deck) return;
+      
+      const today = new Date().toISOString().split('T')[0];
+      reviewCards = cards.filter(c => c.deckId === deckId).map(c => {
+        const p = progress.find(p => p.cardId === c.id) || { cardId: c.id, interval: 0, easeFactor: 2.5, repetitions: 0, dueDate: today };
+        return { ...c, progress: p };
+      }).filter(c => c.progress.dueDate.split('T')[0] <= today);
+      
+      if (reviewCards.length === 0) { showToast('Nenhuma carta para revisar neste deck!'); return; }
+      
+      currentDeckId = deckId;
+      reviewIndex = 0;
+      sessionReviewed = 0;
+      sessionSeconds = 0;
+      isReviewActive = true;
+      
+      DOM.reviewDeckName.textContent = deck.name;
+      DOM.dashboardCard.style.display = 'none';
+      DOM.decksCard.style.display = 'none';
+      DOM.reviewCard.style.display = 'block';
+      
+      sessionStart = Date.now();
+      let lastTick = Date.now();
+      if (sessionTimer) clearInterval(sessionTimer);
+      sessionTimer = setInterval(() => {
+        if (!document.hidden && isReviewActive) {
+          const now = Date.now();
+          sessionSeconds += Math.floor((now - lastTick) / 1000);
+          lastTick = now;
+          DOM.reviewTimer.textContent = `${Math.floor(sessionSeconds/60)}:${(sessionSeconds%60).toString().padStart(2,'0')}`;
+        } else {
+          lastTick = Date.now();
+        }
+      }, 1000);
+      
+      showNextCard();
+    }
+
+    function showNextCard() {
+      if (!isReviewActive) return;
+      if (reviewIndex >= reviewCards.length) {
+        endReview();
+        return;
+      }
+      const card = reviewCards[reviewIndex];
+      DOM.cardFront.textContent = card.front;
+      DOM.cardBack.textContent = card.back;
+      DOM.reviewProgress.textContent = `${reviewIndex + 1}/${reviewCards.length}`;
+      DOM.flashcard.classList.remove('flipped');
+      DOM.reviewActions.style.display = 'none';
+      flipDebounce = false;
+    }
+
+    async function endReview() {
+      isReviewActive = false;
+      clearInterval(sessionTimer);
+      if (sessionStart && sessionSeconds > 0) {
+        await put('sessions', { date: new Date().toISOString().split('T')[0], duration: sessionSeconds });
+      }
+      DOM.dashboardCard.style.display = 'block';
+      DOM.decksCard.style.display = 'block';
+      DOM.reviewCard.style.display = 'none';
+      await loadDashboard();
+      showToast(`✅ Revisão concluída! ${sessionReviewed} cartas em ${Math.floor(sessionSeconds/60)}min`, 'success');
+    }
+
+    // Event listeners
+    DOM.flashcard.addEventListener('click', () => {
+      if (!isReviewActive || flipDebounce) return;
+      flipDebounce = true;
+      DOM.flashcard.classList.toggle('flipped');
+      DOM.reviewActions.style.display = DOM.flashcard.classList.contains('flipped') ? 'grid' : 'none';
+      setTimeout(() => flipDebounce = false, 300);
+    });
+
+    document.querySelectorAll('[data-grade]').forEach(b => b.addEventListener('click', async (e) => {
+      if (!isReviewActive || isProcessing) return;
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      
+      isProcessing = true;
+      btn.disabled = true;
+      btn.style.transform = 'scale(0.95)';
+      
+      try {
+        const grade = btn.dataset.grade;
+        const card = reviewCards[reviewIndex];
+        const newProgress = calculateNextReview(card.progress, grade);
+        await put('progress', { ...newProgress, cardId: card.id });
+        sessionReviewed++;
+        
+        const daysUntilNext = Math.floor((new Date(newProgress.dueDate) - new Date()) / (1000 * 60 * 60 * 24));
+        showToast(`Próxima revisão em ${daysUntilNext} dias`, 'success');
+        
+        reviewIndex++;
+        showNextCard();
+      } finally {
+        isProcessing = false;
+        btn.disabled = false;
+        btn.style.transform = '';
+      }
+    }));
+
+    document.getElementById('exitReviewBtn').addEventListener('click', endReview);
+
+    // Atalhos de teclado
+    document.addEventListener('keydown', (e) => {
+      if (!isReviewActive) return;
+      
+      if (e.code === 'Space') {
+        e.preventDefault();
+        DOM.flashcard.click();
+      }
+      
+      if (DOM.flashcard.classList.contains('flipped')) {
+        const keyMap = { '1': 'again', '2': 'hard', '3': 'good', '4': 'easy' };
+        if (keyMap[e.key]) {
+          e.preventDefault();
+          document.querySelector(`[data-grade="${keyMap[e.key]}"]`)?.click();
+        }
+      }
+    });
+
+    // Modals
+    window.closeDeckModal = () => document.getElementById('deckModal').style.display = 'none';
+    window.closeCardModal = () => {
+      DOM.cardModal.style.display = 'none';
+      DOM.cardFrontInput.value = '';
+      DOM.cardBackInput.value = '';
+      editingCardId = null;
+      DOM.deleteCardBtn.style.display = 'none';
+      DOM.cardModalTitle.textContent = 'Nova Carta';
+    };
+    
+    function openCardModal(deckId, card = null) {
+      currentDeckId = deckId;
+      if (card) {
+        editingCardId = card.id;
+        DOM.cardFrontInput.value = card.front;
+        DOM.cardBackInput.value = card.back;
+        DOM.cardModalTitle.textContent = 'Editar Carta';
+        DOM.deleteCardBtn.style.display = 'flex';
+      } else {
+        editingCardId = null;
+        DOM.cardFrontInput.value = '';
+        DOM.cardBackInput.value = '';
+        DOM.cardModalTitle.textContent = 'Nova Carta';
+        DOM.deleteCardBtn.style.display = 'none';
+      }
+      DOM.cardModal.style.display = 'flex';
+    }
+
+    document.getElementById('createDeckBtn').addEventListener('click', () => {
+      document.getElementById('deckNameInput').value = '';
+      document.getElementById('deckModal').style.display = 'flex';
+    });
+
+    document.getElementById('saveDeckBtn').addEventListener('click', async () => {
+      const name = document.getElementById('deckNameInput').value.trim();
+      if (!name) { showToast('Digite um nome'); return; }
+      await put('decks', { id: generateId(), name, createdAt: new Date().toISOString() });
+      window.closeDeckModal();
+      await loadDashboard();
+      showToast('Deck criado!', 'success');
+    });
+
+    document.getElementById('saveCardBtn').addEventListener('click', async () => {
+      const front = DOM.cardFrontInput.value.trim();
+      const back = DOM.cardBackInput.value.trim();
+      if (!front || !back) { showToast('Preencha frente e verso'); return; }
+      
+      const card = { 
+        id: editingCardId || generateId(), 
+        deckId: currentDeckId, 
+        front, 
+        back, 
+        createdAt: editingCardId ? undefined : new Date().toISOString() 
+      };
+      
+      await put('cards', card);
+      if (!editingCardId) {
+        await put('progress', { cardId: card.id, interval: 0, easeFactor: 2.5, repetitions: 0, dueDate: new Date().toISOString() });
+      }
+      
+      window.closeCardModal();
+      await loadDashboard();
+      showToast(editingCardId ? 'Carta atualizada!' : 'Carta criada!', 'success');
+    });
+
+    document.getElementById('deleteCardBtn').addEventListener('click', async () => {
+      if (!editingCardId || !confirm('Excluir esta carta?')) return;
+      await remove('cards', editingCardId);
+      await remove('progress', editingCardId);
+      window.closeCardModal();
+      await loadDashboard();
+      showToast('Carta excluída');
+    });
+
+    // Export/Import
+    document.getElementById('exportDataBtn').addEventListener('click', async () => {
+      const data = await getAllData();
+      const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+      const a = document.createElement('a'); 
+      a.href = URL.createObjectURL(blob); 
+      a.download = `vulps_flashcards_${new Date().toISOString().split('T')[0]}.json`; 
+      a.click();
+      showToast('Dados exportados!', 'success');
+    });
+
+    document.getElementById('importFileInput').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          for (let d of data.decks || []) await put('decks', d);
+          for (let c of data.cards || []) await put('cards', c);
+          for (let p of data.progress || []) await put('progress', p);
+          await loadDashboard();
+          showToast('Dados importados!', 'success');
+        } catch { showToast('Arquivo inválido'); }
+      };
+      reader.readAsText(file);
+      e.target.value = '';
+    });
+
+    // Inicialização
+    openDB().then(() => loadDashboard());
+  })();
+</script>
+</body>
+</html>
